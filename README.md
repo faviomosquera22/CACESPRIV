@@ -1,0 +1,58 @@
+# Simulador CACES Enfermería
+
+Aplicación externa en Next.js, TypeScript, Tailwind CSS y Supabase para que estudiantes practiquen simulaciones tipo CACES de Enfermería y docentes controlen accesos, creación de alumnos e historial académico.
+
+## Configuración
+
+1. Copia `.env.example` a `.env.local`.
+2. Completa las variables públicas de Supabase:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+Los docentes pueden crear estudiantes desde el panel siempre que `SUPABASE_SERVICE_ROLE_KEY` esté configurada. Cada usuario necesita un registro en `profiles` con `role` igual a `student` o `teacher`; los estudiantes deben quedar habilitados con el área `Enfermería`.
+
+## Rutas
+
+- `/login`
+- `/student/dashboard`
+- `/student/simulator`
+- `/student/results/[simulationId]`
+- `/teacher/dashboard`
+- `/teacher/students/[studentId]`
+
+## Desarrollo
+
+```bash
+npm install
+npm run dev
+```
+
+Abre [http://localhost:3000](http://localhost:3000).
+
+## Banco de preguntas
+
+El repositorio incluye el banco procesado en `src/data/enfermeriaQuestions.json` y el seed de Supabase en `supabase/caces_schema_and_enfermeria_seed.sql`. Los documentos fuente se mantienen localmente en `BASE DE PREGUNTAS CACES` y no se versionan porque incluyen PDFs grandes que superan el limite de GitHub.
+
+Para regenerar el banco local y el seed de Supabase:
+
+```bash
+python3 scripts/extract_enfermeria_questions.py
+```
+
+El script genera `src/data/enfermeriaQuestions.json` y `supabase/caces_schema_and_enfermeria_seed.sql`. Solo carga preguntas de Enfermería con respuesta identificable; deja fuera Psicología y PDFs de referencia como `MAIS` o `SCORE MAMA`.
+
+## Verificación
+
+```bash
+npm run lint
+npm run build
+```
+
+## Tablas esperadas
+
+La app consume las tablas `profiles`, `questions`, `simulations` y `simulation_answers` en Supabase.
+
+Usa `supabase/caces_schema_and_enfermeria_seed.sql` para crear el esquema y cargar el banco de Enfermería.
