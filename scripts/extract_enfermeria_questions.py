@@ -112,6 +112,7 @@ def clean_option(option: str) -> str:
     option = re.sub(r"^[-–—]\s*", "", option).strip()
     option = re.sub(r"^[oO]\s+", "", option).strip()
     option = re.sub(r"^[a-dA-D]\s*[\).:-]\s*", "", option).strip()
+    option = re.sub(r"\s+(?:[a-h]\.\s*){3,}.*$", "", option, flags=re.I).strip()
     option = re.sub(r"\s+(?:\d+\.\s*){2,}.*$", "", option).strip()
     option = re.sub(
         r"\s+(?:Complete el enunciado|Seleccione|Identifique|Relacione|Ordene):?.*$",
@@ -120,6 +121,19 @@ def clean_option(option: str) -> str:
         flags=re.I,
     ).strip()
     return clean_line(option)
+
+
+def is_letter_combo_option(option: str) -> bool:
+    option = clean_option(option).rstrip(".")
+    return bool(re.fullmatch(r"[a-h](?:\s*,\s*[a-h]){1,7}", option, flags=re.I))
+
+
+def has_labeled_multiselect_items(question_text: str) -> bool:
+    letters = set(
+        match.group(1).lower()
+        for match in re.finditer(r"(?:^|[\s;:])([a-h])\.\s+\S", question_text, flags=re.I)
+    )
+    return len(letters) >= 4 and {"a", "b", "c", "d"}.issubset(letters)
 
 
 def is_code_option(option: str) -> bool:
@@ -157,9 +171,12 @@ def is_question_usable(question_text: str, options: list[str]) -> bool:
     if any(is_code_option(option) for option in options):
         return False
 
+    if any(is_letter_combo_option(option) for option in options) and not has_labeled_multiselect_items(question_text):
+        return False
+
     if any(
         re.search(
-            r"(?:\d+\.\s*){2,}|complete el enunciado|seleccione|identifique|relacione|ordene",
+            r"(?:\d+\.\s*){2,}|(?:[a-h]\.\s*){3,}|complete el enunciado|seleccione|identifique|relacione|ordene",
             option,
             flags=re.I,
         )
