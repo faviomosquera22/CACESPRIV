@@ -2,12 +2,20 @@ import { notFound } from "next/navigation";
 import { Mail, UserRound } from "lucide-react";
 import { TeacherStudentHistoryClient } from "@/components/TeacherStudentHistoryClient";
 import { requireProfile } from "@/lib/auth";
+import { mergeSimulationRecords } from "@/lib/cloudSimulationStorage";
 import type {
   Profile,
   Simulation,
   SimulationAnswerWithQuestion,
+  SimulationAttempt,
 } from "@/lib/database.types";
 import { getDemoStudentProfile } from "@/lib/demoStudents";
+import {
+  simulationAttemptHistorySelect,
+  simulationAttemptToAnswers,
+  simulationAttemptToHistoryRecord,
+  type SimulationAttemptHistoryRow,
+} from "@/lib/supabaseSimulationAttempts";
 
 type TeacherStudentPageProps = {
   params: Promise<{
@@ -43,8 +51,26 @@ export default async function TeacherStudentPage({
     .order("created_at", { ascending: false })
     .returns<Simulation[]>();
 
-  const simulations = data ?? [];
-  const simulationIds = simulations.map((simulation) => simulation.id);
+  const legacySimulations = data ?? [];
+  const { data: attemptData } = await supabase
+    .from("simulation_attempts")
+    .select(simulationAttemptHistorySelect)
+    .eq("student_id", student.id)
+    .eq("status", "finished")
+    .order("created_at", { ascending: false })
+    .returns<SimulationAttemptHistoryRow[]>();
+  const { data: attemptSnapshots } = await supabase
+    .from("simulation_attempts")
+    .select("id, answers")
+    .eq("student_id", student.id)
+    .eq("status", "finished")
+    .returns<Pick<SimulationAttempt, "id" | "answers">[]>();
+
+  const simulations = mergeSimulationRecords([
+    ...(attemptData ?? []).map(simulationAttemptToHistoryRecord),
+    ...legacySimulations,
+  ]);
+  const simulationIds = legacySimulations.map((simulation) => simulation.id);
   const { data: answerData } =
     simulationIds.length > 0
       ? await supabase
@@ -104,7 +130,10 @@ export default async function TeacherStudentPage({
       <TeacherStudentHistoryClient
         studentId={student.id}
         serverSimulations={simulations}
-        serverAnswers={answerData ?? []}
+        serverAnswers={[
+          ...(answerData ?? []),
+          ...(attemptSnapshots ?? []).flatMap(simulationAttemptToAnswers),
+        ]}
       />
     </div>
   );

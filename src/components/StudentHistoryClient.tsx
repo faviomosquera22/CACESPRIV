@@ -9,6 +9,7 @@ import {
   getLocalSimulationIndexKey,
   subscribeToLocalSimulationChanges,
 } from "@/lib/localSimulationStorage";
+import { mergeSimulationRecords } from "@/lib/cloudSimulationStorage";
 
 type StudentHistoryClientProps = {
   studentId: string;
@@ -39,17 +40,7 @@ export function StudentHistoryClient({
   }, [rawValue]);
 
   const simulations = useMemo(
-    () =>
-      [...localSimulations, ...serverSimulations].sort((left, right) => {
-        const leftTime = new Date(
-          left.finished_at ?? left.created_at ?? 0,
-        ).getTime();
-        const rightTime = new Date(
-          right.finished_at ?? right.created_at ?? 0,
-        ).getTime();
-
-        return rightTime - leftTime;
-      }),
+    () => mergeSimulationRecords([...localSimulations, ...serverSimulations]),
     [localSimulations, serverSimulations],
   );
 

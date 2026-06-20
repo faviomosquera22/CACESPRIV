@@ -2,6 +2,12 @@ import Link from "next/link";
 import { ArrowLeft, History } from "lucide-react";
 import { StudentHistoryClient } from "@/components/StudentHistoryClient";
 import { requireCompletedStudentProfile } from "@/lib/auth";
+import { mergeSimulationRecords } from "@/lib/cloudSimulationStorage";
+import {
+  simulationAttemptHistorySelect,
+  simulationAttemptToHistoryRecord,
+  type SimulationAttemptHistoryRow,
+} from "@/lib/supabaseSimulationAttempts";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +22,18 @@ export default async function StudentHistoryPage() {
     .eq("student_id", profile.id)
     .order("created_at", { ascending: false });
 
-  const simulations = data ?? [];
+  const { data: attemptData } = await supabase
+    .from("simulation_attempts")
+    .select(simulationAttemptHistorySelect)
+    .eq("student_id", profile.id)
+    .eq("status", "finished")
+    .order("created_at", { ascending: false })
+    .returns<SimulationAttemptHistoryRow[]>();
+
+  const simulations = mergeSimulationRecords([
+    ...(attemptData ?? []).map(simulationAttemptToHistoryRecord),
+    ...(data ?? []),
+  ]);
 
   return (
     <div className="space-y-6">

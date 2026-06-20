@@ -15,6 +15,7 @@ import {
 import type { OptionLetter, Question } from "@/lib/database.types";
 import { writeLocalSimulationSummary } from "@/lib/localSimulationStorage";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
+import { buildSimulationAttemptInsert } from "@/lib/supabaseSimulationAttempts";
 import { SimulationQuestion } from "@/components/SimulationQuestion";
 
 type SimulatorClientProps = {
@@ -104,6 +105,37 @@ export function SimulatorClient({
           ? Math.round((correctAnswers / totalQuestions) * 10000) / 100
           : 0;
       const timeUsedSeconds = Math.max(0, SIMULATION_SECONDS - timeLeft);
+
+      // Stores a self-contained snapshot so results are available from any device.
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const { data: storedAttempt, error: storedAttemptError } = await supabase
+          .from("simulation_attempts")
+          .insert(
+            buildSimulationAttemptInsert({
+              studentId,
+              startedAt: startedAtRef.current.toISOString(),
+              finishedAt: finishedAt.toISOString(),
+              totalQuestions,
+              correctAnswers,
+              incorrectAnswers,
+              score,
+              timeUsedSeconds,
+              questions,
+              selectedAnswers: answers,
+            }),
+          )
+          .select("id")
+          .single();
+
+        if (!storedAttemptError && storedAttempt) {
+          router.push(`/student/results/${storedAttempt.id}`);
+          router.refresh();
+          return;
+        }
+      } catch {
+        // Continue with the existing fallback until the synchronization SQL is installed.
+      }
 
       if (persistenceMode === "local") {
         const simulationId = `local-${Date.now()}`;

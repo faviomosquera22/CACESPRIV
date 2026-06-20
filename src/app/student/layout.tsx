@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { History, LayoutDashboard, UserRound } from "lucide-react";
 import { AppShell, type NavItem } from "@/components/AppShell";
+import { StudentSupabaseSyncClient } from "@/components/StudentSupabaseSyncClient";
 import { requireProfile } from "@/lib/auth";
 
 const studentNavItems: NavItem[] = [
@@ -29,8 +30,11 @@ export default async function StudentLayout({
   const { profile } = await requireProfile(["student"]);
 
   return (
-    <AppShell profile={profile} navItems={studentNavItems}>
-      {children}
-    </AppShell>
+    <>
+      <StudentSupabaseSyncClient studentId={profile.id} />
+      <AppShell profile={profile} navItems={studentNavItems}>
+        {children}
+      </AppShell>
+    </>
   );
 }

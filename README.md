@@ -44,6 +44,15 @@ python3 scripts/extract_enfermeria_questions.py
 
 El script genera `src/data/enfermeriaQuestions.json` y `supabase/caces_schema_and_enfermeria_seed.sql`. Solo carga preguntas de Enfermería con respuesta identificable; deja fuera Psicología y PDFs de referencia como `MAIS` o `SCORE MAMA`.
 
+Para sincronizar resultados entre equipos, ejecuta una sola vez
+`supabase/simulation_attempts_storage.sql` en Supabase SQL Editor. Cada intento
+queda guardado con sus preguntas y respuestas; los intentos locales anteriores
+se migran automáticamente cuando el estudiante vuelve a iniciar sesión.
+
+Cuando agregues documentos a `BASE DE PREGUNTAS CACES`, vuelve a ejecutar el
+extractor. Para reemplazar el banco remoto, ejecuta primero
+`supabase/question_bank_refresh.sql` y luego el seed regenerado.
+
 ## Verificación
 
 ```bash
