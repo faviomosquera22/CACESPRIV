@@ -204,6 +204,42 @@ export interface Database {
         };
         Relationships: [];
       };
+      reinforcement_attempts: {
+        Row: {
+          id: string;
+          student_id: string;
+          source_simulation_id: string;
+          exam_slug: string;
+          category: string;
+          total_questions: number;
+          correct_answers: number;
+          completed_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          student_id: string;
+          source_simulation_id: string;
+          exam_slug: string;
+          category: string;
+          total_questions: number;
+          correct_answers: number;
+          completed_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          student_id?: string;
+          source_simulation_id?: string;
+          exam_slug?: string;
+          category?: string;
+          total_questions?: number;
+          correct_answers?: number;
+          completed_at?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -234,6 +270,7 @@ export type Question = Tables<"questions">;
 export type Simulation = Tables<"simulations">;
 export type SimulationAnswer = Tables<"simulation_answers">;
 export type SimulationAttempt = Tables<"simulation_attempts">;
+export type ReinforcementAttempt = Tables<"reinforcement_attempts">;
 
 export type SimulationAnswerWithQuestion = SimulationAnswer & {
   questions: Question | null;

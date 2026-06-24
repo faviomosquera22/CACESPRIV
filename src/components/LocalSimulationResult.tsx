@@ -5,6 +5,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ResultCategorySummary } from "@/components/ResultCategorySummary";
 import { ResultReviewList } from "@/components/ResultReviewList";
 import { ResultScoreCard } from "@/components/ResultScoreCard";
+import { ReinforcementRecommendations } from "@/components/ReinforcementRecommendations";
 import type {
   Simulation,
   SimulationAnswerWithQuestion,
@@ -69,6 +70,12 @@ export function LocalSimulationResult({
       />
 
       <ResultCategorySummary answers={answers} />
+
+      <ReinforcementRecommendations
+        answers={answers}
+        examSlug="enfermeria"
+        sourceSimulationId={simulationId}
+      />
 
       <ResultReviewList answers={answers} />
     </div>

@@ -17,6 +17,8 @@ import { writeLocalSimulationSummary } from "@/lib/localSimulationStorage";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import { buildSimulationAttemptInsert } from "@/lib/supabaseSimulationAttempts";
 import { SimulationQuestion } from "@/components/SimulationQuestion";
+import { getCategoryWeaknesses } from "@/lib/reinforcement";
+import { writePendingLocalReinforcements } from "@/lib/reinforcementStorage";
 
 type SimulatorClientProps = {
   questions: Question[];
@@ -105,6 +107,20 @@ export function SimulatorClient({
           ? Math.round((correctAnswers / totalQuestions) * 10000) / 100
           : 0;
       const timeUsedSeconds = Math.max(0, SIMULATION_SECONDS - timeLeft);
+      const resultAnswers = questions.map((question) => {
+        const selectedOption = answers[question.id] ?? null;
+
+        return {
+          id: question.id,
+          simulation_id: "pending",
+          question_id: question.id,
+          selected_option: selectedOption,
+          is_correct: selectedOption === question.correct_option,
+          answered_at: finishedAt.toISOString(),
+          questions: question,
+        };
+      });
+      const weaknesses = getCategoryWeaknesses(resultAnswers);
 
       // Stores a self-contained snapshot so results are available from any device.
       try {
@@ -129,6 +145,12 @@ export function SimulatorClient({
           .single();
 
         if (!storedAttemptError && storedAttempt) {
+          writePendingLocalReinforcements(
+            studentId,
+            storedAttempt.id,
+            "enfermeria",
+            weaknesses,
+          );
           router.push(`/student/results/${storedAttempt.id}`);
           router.refresh();
           return;
@@ -174,6 +196,12 @@ export function SimulatorClient({
           }),
         );
         writeLocalSimulationSummary(studentId, localSimulation);
+        writePendingLocalReinforcements(
+          studentId,
+          simulationId,
+          "enfermeria",
+          weaknesses,
+        );
 
         router.push(`/student/results/${simulationId}`);
         return;
@@ -220,6 +248,13 @@ export function SimulatorClient({
       if (answersError) {
         throw new Error("No se pudieron guardar las respuestas.");
       }
+
+      writePendingLocalReinforcements(
+        studentId,
+        simulation.id,
+        "enfermeria",
+        weaknesses,
+      );
 
       router.push(`/student/results/${simulation.id}`);
       router.refresh();
@@ -288,6 +323,26 @@ export function SimulatorClient({
 
   return (
     <div className="space-y-6">
+      <div
+        className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-white shadow-xl ${
+          timeLeft <= 60
+            ? "border-red-700 bg-red-700"
+            : timeLeft <= 5 * 60
+              ? "border-amber-600 bg-amber-600"
+              : "border-slate-800 bg-slate-950"
+        }`}
+        role="status"
+        aria-label={`Tiempo restante: ${formatTimer(timeLeft)}`}
+      >
+        <Clock3 className="h-5 w-5" aria-hidden="true" />
+        <div>
+          <p className="text-xs font-medium text-white/80">Tiempo restante</p>
+          <p className="text-xl font-semibold tabular-nums leading-5">
+            {formatTimer(timeLeft)}
+          </p>
+        </div>
+      </div>
+
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -297,9 +352,6 @@ export function SimulatorClient({
             <p className="mt-2 text-sm text-slate-600">{answeredLabel}</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-slate-950 px-4 py-2 text-lg font-semibold tabular-nums text-white">
-              {formatTimer(timeLeft)}
-            </div>
             <button
               type="button"
               onClick={requestFinishSimulation}

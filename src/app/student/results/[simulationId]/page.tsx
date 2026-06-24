@@ -4,6 +4,7 @@ import { LocalSimulationResult } from "@/components/LocalSimulationResult";
 import { ResultCategorySummary } from "@/components/ResultCategorySummary";
 import { ResultReviewList } from "@/components/ResultReviewList";
 import { ResultScoreCard } from "@/components/ResultScoreCard";
+import { ReinforcementRecommendations } from "@/components/ReinforcementRecommendations";
 import { requireCompletedStudentProfile } from "@/lib/auth";
 import type {
   SimulationAnswerWithQuestion,
@@ -57,6 +58,11 @@ export default async function StudentResultPage({
 
         <ResultScoreCard simulation={simulation} />
         <ResultCategorySummary answers={answers} />
+        <ReinforcementRecommendations
+          answers={answers}
+          examSlug="enfermeria"
+          sourceSimulationId={simulationId}
+        />
         <ResultReviewList answers={answers} />
       </div>
     );
@@ -116,6 +122,12 @@ export default async function StudentResultPage({
       <ResultScoreCard simulation={simulation} />
 
       <ResultCategorySummary answers={answers} />
+
+      <ReinforcementRecommendations
+        answers={answers}
+        examSlug="enfermeria"
+        sourceSimulationId={simulationId}
+      />
 
       <section>
         {answers.length === 0 ? (
