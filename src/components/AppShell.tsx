@@ -23,11 +23,7 @@ export function AppShell({ profile, navItems, children }: AppShellProps) {
 
   return (
     <div className="protected-interaction-surface min-h-screen bg-slate-50 text-slate-950">
-      <ContentProtection
-        userId={profile.id}
-        userName={profile.full_name}
-        userEmail={profile.email}
-      />
+      <ContentProtection />
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">

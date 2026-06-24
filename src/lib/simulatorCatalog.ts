@@ -23,7 +23,7 @@ export const simulatorExams: SimulatorExamConfig[] = [
     structure: [
       "Cuidado del adulto, materno infantil, salud comunitaria y fundamentos profesionales.",
       "Preguntas de opción múltiple con una sola respuesta correcta.",
-      "Hasta 50 preguntas y temporizador de 60 minutos en esta primera versión.",
+      "100 preguntas y temporizador de 120 minutos.",
     ],
     categoryKeywords: ["enfermeria", "enfermería", "nursing"],
     icon: Stethoscope,

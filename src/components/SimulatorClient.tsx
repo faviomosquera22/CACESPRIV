@@ -26,7 +26,7 @@ type SimulatorClientProps = {
   persistenceMode?: "supabase" | "local";
 };
 
-const SIMULATION_SECONDS = 60 * 60;
+const SIMULATION_SECONDS = 120 * 60;
 
 function formatTimer(seconds: number) {
   const minutes = Math.floor(seconds / 60);

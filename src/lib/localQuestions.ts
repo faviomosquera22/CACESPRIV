@@ -5,27 +5,27 @@ export const nursingExamDistribution = [
   {
     area: "Cuidado y Procedimientos Clínicos de Enfermería",
     percent: 30,
-    count: 15,
+    count: 30,
   },
   {
     area: "Cuidados de la Mujer, Recién Nacido, Niño y Adolescente",
     percent: 24,
-    count: 12,
+    count: 24,
   },
   {
     area: "Cuidados del Adulto y Adulto Mayor",
     percent: 20,
-    count: 10,
+    count: 20,
   },
   {
     area: "Cuidado Familiar, Comunitario e Intercultural",
     percent: 17,
-    count: 9,
+    count: 17,
   },
   {
     area: "Bases Educativas, Administrativas, Investigativas y Epidemiológicas",
     percent: 9,
-    count: 4,
+    count: 9,
   },
 ];
 
@@ -88,16 +88,16 @@ function selectDistributedExamQuestions(
     );
   });
 
-  if (selected.length < 50) {
+  if (selected.length < 100) {
     const selectedIds = new Set(selected.map((question) => question.id));
     const fillQuestions = availableQuestions.filter(
       (question) => !selectedIds.has(question.id),
     );
 
-    selected.push(...fillQuestions.slice(0, 50 - selected.length));
+    selected.push(...fillQuestions.slice(0, 100 - selected.length));
   }
 
-  return dedupeQuestions(selected).slice(0, 50);
+  return dedupeQuestions(selected).slice(0, 100);
 }
 
 export function selectNursingExamQuestions(questions: Question[]) {
@@ -109,7 +109,7 @@ export function selectQuestionsForExam(examType: string, questions: Question[]) 
     return selectNursingExamQuestions(questions);
   }
 
-  return questions.slice(0, 50);
+  return questions.slice(0, 100);
 }
 
 export function getLocalQuestionsForExam(examType: string) {

@@ -1,19 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import { EyeOff } from "lucide-react";
 
 const editableSelector =
   'input, textarea, select, [contenteditable="true"], [data-allow-selection="true"]';
-const watermarkItemCount = 48;
-
-type ContentProtectionProps = {
-  userId: string;
-  userName?: string | null;
-  userEmail?: string | null;
-};
-
 function getElement(target: EventTarget | null) {
   if (target instanceof Element) {
     return target;
@@ -40,34 +31,9 @@ function isCopyShortcut(event: KeyboardEvent) {
   return (event.metaKey || event.ctrlKey) && (key === "c" || key === "x");
 }
 
-function shouldShowWatermark(pathname: string) {
-  return (
-    pathname.startsWith("/student/simulator") ||
-    pathname.startsWith("/student/results")
-  );
-}
-
-function formatWatermarkTime() {
-  return new Intl.DateTimeFormat("es-EC", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(new Date());
-}
-
-export function ContentProtection({
-  userId,
-  userName,
-  userEmail,
-}: ContentProtectionProps) {
-  const pathname = usePathname();
+export function ContentProtection() {
   const [isObscured, setIsObscured] = useState(false);
-  const [watermarkTime, setWatermarkTime] = useState("");
   const temporaryTimerRef = useRef<number | null>(null);
-  const showWatermark = shouldShowWatermark(pathname ?? "");
-  const displayIdentity =
-    [userName, userEmail].filter(Boolean).join(" | ") || "Usuario protegido";
-  const shortUserId = userId.slice(0, 8);
-  const watermarkText = `${displayIdentity} | ID ${shortUserId} | ${watermarkTime}`;
 
   useEffect(() => {
     function clearTemporaryTimer() {
@@ -175,38 +141,8 @@ export function ContentProtection({
     };
   }, []);
 
-  useEffect(() => {
-    function refreshWatermarkTime() {
-      setWatermarkTime(formatWatermarkTime());
-    }
-
-    refreshWatermarkTime();
-
-    const timer = window.setInterval(refreshWatermarkTime, 30_000);
-
-    return () => window.clearInterval(timer);
-  }, []);
-
   return (
     <>
-      {showWatermark ? (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-[60] overflow-hidden select-none"
-        >
-          <div className="absolute inset-[-18%] grid grid-cols-2 gap-x-12 gap-y-16 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {Array.from({ length: watermarkItemCount }, (_, index) => (
-              <span
-                key={index}
-                className="-rotate-12 whitespace-nowrap text-[10px] font-semibold tracking-normal text-slate-950/10 sm:text-xs"
-              >
-                {watermarkText}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
       <div
         aria-hidden={!isObscured}
         aria-label="Contenido protegido mientras la ventana no esta activa"
