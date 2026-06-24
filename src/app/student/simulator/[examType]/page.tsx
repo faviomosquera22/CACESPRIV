@@ -3,6 +3,7 @@ import { ArrowLeft, ClipboardList } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SimulatorClient } from "@/components/SimulatorClient";
+import { SimulatorAccessGate } from "@/components/SimulatorAccessGate";
 import { requireCompletedStudentProfile } from "@/lib/auth";
 import type { Question } from "@/lib/database.types";
 import {
@@ -13,6 +14,8 @@ import {
 } from "@/lib/localQuestions";
 import { getSimulatorExam } from "@/lib/simulatorCatalog";
 import { getStudentCareerOption } from "@/lib/studentCareer";
+import { getCategoryWeaknesses } from "@/lib/reinforcement";
+import { simulationAttemptToAnswers } from "@/lib/supabaseSimulationAttempts";
 
 type StudentExamSimulatorPageProps = {
   params: Promise<{
@@ -62,6 +65,45 @@ export default async function StudentExamSimulatorPage({
       : selectQuestionsForExam(exam.slug, supabaseQuestions);
   const persistenceMode = isLocalQuestionSet(questions) ? "local" : "supabase";
   const Icon = exam.icon;
+  let serverPendingReinforcements: Array<{
+    sourceSimulationId: string;
+    category: string;
+  }> = [];
+
+  if (persistenceMode === "supabase") {
+    const { data: latestAttempt } = await supabase
+      .from("simulation_attempts")
+      .select("id, answers")
+      .eq("student_id", profile.id)
+      .eq("exam_slug", exam.slug)
+      .order("finished_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (latestAttempt) {
+      const weaknesses = getCategoryWeaknesses(
+        simulationAttemptToAnswers(latestAttempt),
+      );
+      const { data: completedReinforcements, error: reinforcementError } =
+        await supabase
+          .from("reinforcement_attempts")
+          .select("category")
+          .eq("student_id", profile.id)
+          .eq("source_simulation_id", latestAttempt.id);
+
+      if (!reinforcementError) {
+        const completedCategories = new Set(
+          (completedReinforcements ?? []).map((attempt) => attempt.category),
+        );
+        serverPendingReinforcements = weaknesses
+          .filter((weakness) => !completedCategories.has(weakness.category))
+          .map((weakness) => ({
+            sourceSimulationId: latestAttempt.id,
+            category: weakness.category,
+          }));
+      }
+    }
+  }
 
   if (error && questions.length === 0) {
     return (
@@ -146,11 +188,17 @@ export default async function StudentExamSimulatorPage({
         </div>
       ) : null}
 
-      <SimulatorClient
-        questions={questions}
+      <SimulatorAccessGate
         studentId={profile.id}
-        persistenceMode={persistenceMode}
-      />
+        examSlug={exam.slug}
+        serverPending={serverPendingReinforcements}
+      >
+        <SimulatorClient
+          questions={questions}
+          studentId={profile.id}
+          persistenceMode={persistenceMode}
+        />
+      </SimulatorAccessGate>
     </div>
   );
 }

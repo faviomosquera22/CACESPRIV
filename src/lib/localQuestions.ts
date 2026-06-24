@@ -120,6 +120,32 @@ export function getLocalQuestionsForExam(examType: string) {
   return [];
 }
 
+export function getQuestionsForReinforcement(
+  questions: Question[],
+  category: string,
+  count = 25,
+) {
+  return shuffleQuestions(
+    questions.filter((question) => question.category?.trim() === category),
+  ).slice(0, count);
+}
+
+export function getLocalQuestionsForReinforcement(
+  examType: string,
+  category: string,
+  count = 25,
+) {
+  if (examType !== "enfermeria") {
+    return [];
+  }
+
+  return getQuestionsForReinforcement(
+    enfermeriaQuestions as Question[],
+    category,
+    count,
+  );
+}
+
 export function isLocalQuestionSet(questions: Question[]) {
   return questions.some((question) => question.id.startsWith("local-"));
 }
