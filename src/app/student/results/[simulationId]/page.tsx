@@ -5,10 +5,12 @@ import { ResultCategorySummary } from "@/components/ResultCategorySummary";
 import { ResultReviewList } from "@/components/ResultReviewList";
 import { ResultScoreCard } from "@/components/ResultScoreCard";
 import { ReinforcementRecommendations } from "@/components/ReinforcementRecommendations";
+import { ReinforcementResultsSummary } from "@/components/ReinforcementResultsSummary";
 import { requireCompletedStudentProfile } from "@/lib/auth";
 import type {
   SimulationAnswerWithQuestion,
   SimulationAttempt,
+  ReinforcementAttempt,
 } from "@/lib/database.types";
 import {
   simulationAttemptToAnswers,
@@ -46,6 +48,28 @@ export default async function StudentResultPage({
   if (synchronizedAttempt) {
     const simulation = simulationAttemptToSimulation(synchronizedAttempt);
     const answers = simulationAttemptToAnswers(synchronizedAttempt);
+    const { data: reinforcementAttempts } = await supabase
+      .from("reinforcement_attempts")
+      .select(
+        "id, category, total_questions, correct_answers, score, completed_at, created_at",
+      )
+      .eq("student_id", profile.id)
+      .eq("source_simulation_id", simulationId)
+      .returns<
+        Array<
+          Pick<
+            ReinforcementAttempt,
+            | "id"
+            | "category"
+            | "total_questions"
+            | "correct_answers"
+            | "score"
+            | "completed_at"
+            | "created_at"
+          >
+        >
+      >();
+    const completedReinforcements = reinforcementAttempts ?? [];
 
     return (
       <div className="space-y-8">
@@ -58,10 +82,14 @@ export default async function StudentResultPage({
 
         <ResultScoreCard simulation={simulation} />
         <ResultCategorySummary answers={answers} />
+        <ReinforcementResultsSummary attempts={completedReinforcements} />
         <ReinforcementRecommendations
           answers={answers}
           examSlug="enfermeria"
           sourceSimulationId={simulationId}
+          completedCategories={completedReinforcements.map(
+            (attempt) => attempt.category,
+          )}
         />
         <ResultReviewList answers={answers} />
       </div>
@@ -109,6 +137,28 @@ export default async function StudentResultPage({
     .returns<SimulationAnswerWithQuestion[]>();
 
   const answers = data ?? [];
+  const { data: reinforcementAttempts } = await supabase
+    .from("reinforcement_attempts")
+    .select(
+      "id, category, total_questions, correct_answers, score, completed_at, created_at",
+    )
+    .eq("student_id", profile.id)
+    .eq("source_simulation_id", simulationId)
+    .returns<
+      Array<
+        Pick<
+          ReinforcementAttempt,
+          | "id"
+          | "category"
+          | "total_questions"
+          | "correct_answers"
+          | "score"
+          | "completed_at"
+          | "created_at"
+        >
+      >
+    >();
+  const completedReinforcements = reinforcementAttempts ?? [];
 
   return (
     <div className="space-y-8">
@@ -123,10 +173,15 @@ export default async function StudentResultPage({
 
       <ResultCategorySummary answers={answers} />
 
+      <ReinforcementResultsSummary attempts={completedReinforcements} />
+
       <ReinforcementRecommendations
         answers={answers}
         examSlug="enfermeria"
         sourceSimulationId={simulationId}
+        completedCategories={completedReinforcements.map(
+          (attempt) => attempt.category,
+        )}
       />
 
       <section>

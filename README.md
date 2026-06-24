@@ -52,7 +52,8 @@ se migran automáticamente cuando el estudiante vuelve a iniciar sesión.
 Para habilitar el bloqueo y la liberación del simulador mediante los mini tests,
 ejecuta también `supabase/reinforcement_attempts_storage.sql`. Sin esa tabla el
 refuerzo seguirá funcionando en el navegador actual, pero no se sincronizará
-entre dispositivos.
+entre dispositivos. Si ya ejecutaste una versión anterior de ese script, vuelve
+a ejecutarlo para añadir el puntaje y las respuestas del resultado de refuerzo.
 
 Cuando agregues documentos a `BASE DE PREGUNTAS CACES`, vuelve a ejecutar el
 extractor. Para reemplazar el banco remoto, ejecuta primero

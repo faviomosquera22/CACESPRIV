@@ -213,6 +213,8 @@ export interface Database {
           category: string;
           total_questions: number;
           correct_answers: number;
+          score: number;
+          answers: Json;
           completed_at: string | null;
           created_at: string | null;
         };
@@ -224,6 +226,8 @@ export interface Database {
           category: string;
           total_questions: number;
           correct_answers: number;
+          score: number;
+          answers?: Json;
           completed_at?: string | null;
           created_at?: string | null;
         };
@@ -235,6 +239,8 @@ export interface Database {
           category?: string;
           total_questions?: number;
           correct_answers?: number;
+          score?: number;
+          answers?: Json;
           completed_at?: string | null;
           created_at?: string | null;
         };

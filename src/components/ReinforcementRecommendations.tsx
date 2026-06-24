@@ -11,14 +11,19 @@ type ReinforcementRecommendationsProps = {
   answers: SimulationAnswerWithQuestion[];
   examSlug: string;
   sourceSimulationId: string;
+  completedCategories?: string[];
 };
 
 export function ReinforcementRecommendations({
   answers,
   examSlug,
   sourceSimulationId,
+  completedCategories = [],
 }: ReinforcementRecommendationsProps) {
-  const weaknesses = getCategoryWeaknesses(answers);
+  const completedCategorySet = new Set(completedCategories);
+  const weaknesses = getCategoryWeaknesses(answers).filter(
+    (weakness) => !completedCategorySet.has(weakness.category),
+  );
 
   if (weaknesses.length === 0) {
     return null;

@@ -11,10 +11,27 @@ create table if not exists public.reinforcement_attempts (
   category text not null,
   total_questions integer not null check (total_questions between 20 and 25),
   correct_answers integer not null check (correct_answers between 0 and total_questions),
+  score numeric not null check (score between 0 and 100),
+  answers jsonb not null default '[]'::jsonb,
   completed_at timestamp with time zone not null default now(),
   created_at timestamp with time zone default now(),
   unique (student_id, source_simulation_id, category)
 );
+
+-- Estas dos sentencias permiten aplicar el cambio también si la tabla ya se
+-- creó con la primera versión del refuerzo.
+alter table public.reinforcement_attempts
+  add column if not exists score numeric;
+
+alter table public.reinforcement_attempts
+  add column if not exists answers jsonb not null default '[]'::jsonb;
+
+update public.reinforcement_attempts
+set score = round((correct_answers::numeric / nullif(total_questions, 0)) * 100, 2)
+where score is null;
+
+alter table public.reinforcement_attempts
+  alter column score set not null;
 
 create index if not exists reinforcement_attempts_student_source_idx
 on public.reinforcement_attempts (student_id, source_simulation_id);

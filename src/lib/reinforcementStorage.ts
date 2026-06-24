@@ -7,6 +7,8 @@ export type LocalReinforcement = {
   examSlug: string;
   category: string;
   score: number;
+  totalQuestions?: number;
+  correctAnswers?: number;
   createdAt: string;
   completedAt: string | null;
 };
@@ -76,6 +78,11 @@ export function completeLocalReinforcement(
   studentId: string,
   sourceSimulationId: string,
   category: string,
+  result: {
+    totalQuestions: number;
+    correctAnswers: number;
+    score: number;
+  },
 ) {
   const completedAt = new Date().toISOString();
   const existing = readLocalReinforcements(studentId);
@@ -86,7 +93,7 @@ export function completeLocalReinforcement(
   const next = matched
     ? existing.map((item) =>
         item.sourceSimulationId === sourceSimulationId && item.category === category
-          ? { ...item, completedAt }
+          ? { ...item, ...result, completedAt }
           : item,
       )
     : [
@@ -94,7 +101,7 @@ export function completeLocalReinforcement(
           sourceSimulationId,
           examSlug: "enfermeria",
           category,
-          score: 0,
+          ...result,
           createdAt: completedAt,
           completedAt,
         },

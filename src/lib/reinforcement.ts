@@ -18,10 +18,10 @@ export type CategoryPerformance = {
 };
 
 const defaultGuide: MspGuide = {
-  title: "Temario técnico para Enfermera/o del MSP",
+  title: "Gacetas epidemiológicas y manual SIVE-ALERTA",
   description:
-    "Repasa los ejes de atención integral, procedimientos, bioseguridad, proceso enfermero y promoción de la salud.",
-  href: "https://www.salud.gob.ec/wp-content/uploads/2017/04/TEMARIOS-ENFERMERA.pdf",
+    "Repasa vigilancia epidemiológica, notificación, análisis de datos y respuesta ante eventos de salud pública.",
+  href: "https://www.salud.gob.ec/gacetas-inmunoprevenibles/",
 };
 
 const guideByCategory: Record<string, MspGuide> = {
@@ -38,10 +38,10 @@ const guideByCategory: Record<string, MspGuide> = {
     href: "https://www.salud.gob.ec/wp-content/uploads/2025/01/Manual_control_de_enterobacterias_productoras_de_carbapenemasas_a_nivel_hospitalario.pdf",
   },
   "Enfermería - Cuidados del Adulto y Adulto Mayor": {
-    title: "Temario técnico para Enfermera/o del MSP",
+    title: "Guía de Práctica Clínica: Enfermedad Renal Crónica",
     description:
-      "Repasa atención integral al paciente y los contenidos de geriatría y cuidado del adulto mayor.",
-    href: "https://www.salud.gob.ec/wp-content/uploads/2017/04/TEMARIOS-ENFERMERA.pdf",
+      "Refuerza prevención, diagnóstico, tratamiento, seguimiento y referencia del paciente adulto y adulto mayor.",
+    href: "https://www.salud.gob.ec/wp-content/uploads/2018/10/guia_prevencion_diagnostico_tratamiento_enfermedad_renal_cronica_2018.pdf",
   },
   "Enfermería - Cuidado Familiar, Comunitario e Intercultural": {
     title: "Manual operativo del Modelo de Atención Integral de Salud",
@@ -50,10 +50,10 @@ const guideByCategory: Record<string, MspGuide> = {
     href: "https://www.salud.gob.ec/wp-content/uploads/downloads/2013/07/DOCBASERED100613.pdf",
   },
   "Enfermería - Bases Educativas, Administrativas, Investigativas y Epidemiológicas": {
-    title: "Temario técnico para Enfermera/o del MSP",
+    title: "Gacetas epidemiológicas y manual SIVE-ALERTA",
     description:
-      "Repasa proceso enfermero, bioseguridad, promoción y prevención, farmacología y bases de gestión.",
-    href: "https://www.salud.gob.ec/wp-content/uploads/2017/04/TEMARIOS-ENFERMERA.pdf",
+      "Refuerza vigilancia epidemiológica, notificación, análisis de datos y respuesta ante eventos de salud pública.",
+    href: "https://www.salud.gob.ec/gacetas-inmunoprevenibles/",
   },
 };
 
